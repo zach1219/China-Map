@@ -50,7 +50,6 @@ body {
 }
 .map-panel svg { width: 100%; height: auto; display: block; }
 .province {
-    fill: #f0f0f0;
     stroke: var(--bg, #f5f7fa);
     stroke-width: 1;
     stroke-linejoin: round;
@@ -293,7 +292,6 @@ td { padding: 5px 8px; border-bottom: 1px solid #eee; }
     <span class="sep">|</span>
     <a href="https://github.com/zach1219/China-Map" target="_blank">GitHub 项目地址</a>
 </footer>
-<script>window.__SCRIPT_OK__=true;</script>
 
 
 <script>
@@ -421,24 +419,6 @@ function buildMap() {
         }
     });
 
-    // Offset overlapping labels
-    var labels = labelGroup.querySelectorAll("text");
-    var positions = [];
-    labels.forEach(function(lbl) {
-        positions.push({ el: lbl, x: parseFloat(lbl.getAttribute("x")), y: parseFloat(lbl.getAttribute("y")) });
-    });
-    for (var i = 0; i < positions.length; i++) {
-        for (var j = i + 1; j < positions.length; j++) {
-            var dx = positions[i].x - positions[j].x;
-            var dy = positions[i].y - positions[j].y;
-            var dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 20) {
-                positions[j].y += 12;
-                positions[j].el.setAttribute("y", positions[j].y);
-            }
-        }
-    }
-
     // Province hover tooltip
     var tooltip = document.getElementById('tooltip');
     svg.addEventListener('mousemove', function(e) {
@@ -486,10 +466,10 @@ function applyColors() {
         var id = path.getAttribute('data-id');
         var cnt = countByProvince[id] || 0;
         if (cnt === 0) {
-            path.setAttribute('fill', '#f0f0f0');
+            path.style.fill = '#f0f0f0';
         } else {
             var t = maxCount > 1 ? (cnt - 1) / (maxCount - 1) : 1;
-            path.setAttribute('fill', lerpColor(minC, maxC, t));
+            path.style.fill = lerpColor(minC, maxC, t);
         }
     });
     // Update label colors + hide option
@@ -504,9 +484,9 @@ function applyColors() {
             if (cnt > 0) {
                 var t = maxCount > 1 ? (cnt - 1) / (maxCount - 1) : 1;
                 var bg = lerpColor(minC, maxC, t);
-                lbl.setAttribute('fill', getContrastColor(bg));
+                lbl.style.fill = getContrastColor(bg);
             } else {
-                lbl.setAttribute('fill', '#333333');
+                lbl.style.fill = '#333333';
             }
         }
     });
