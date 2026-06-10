@@ -78,34 +78,42 @@ function exportSVG() {
 function exportPNG() {
     var svg = document.getElementById('china-map');
     var vb = svg.getAttribute('viewBox').split(' ').map(Number);
-    // 固定3倍渲染保证清晰度
     var scale = 3;
     var w = vb[2] * scale;
     var h = vb[3] * scale;
+
+    var clone = svg.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('width', w);
+    clone.setAttribute('height', h);
+
+    inlineStyles(svg, clone);
+
+    var svgData = new XMLSerializer().serializeToString(clone);
+    var svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
 
     var canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
     var ctx = canvas.getContext('2d');
 
-    // 不填充白色背景——透明导出
-
-    var clone = svg.cloneNode(true);
-    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    clone.setAttribute('width', w);
-    clone.setAttribute('height', h);
-    // viewBox 保持不变，SVG 渲染器自动处理缩放
-    // 不再手动缩放 stroke-width / font-size，避免双重缩放
-
-    inlineStyles(svg, clone);
-
-    var svgData = new XMLSerializer().serializeToString(clone);
     var img = new Image();
     img.onload = function() {
         ctx.drawImage(img, 0, 0, w, h);
-        canvas.toBlob(function(blob) {
-            downloadBlob(blob, 'china-map.png');
-        }, 'image/png');
+        try {
+            var dataUrl = canvas.toDataURL('image/png');
+            var a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = 'china-map.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch(e) {
+            alert('导出失败：' + e.message);
+        }
     };
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    img.onerror = function() {
+        alert('图片渲染失败，请改用导出 SVG');
+    };
+    img.src = svgBase64;
 }
