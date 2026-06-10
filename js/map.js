@@ -105,7 +105,7 @@ function buildMap() {
         var sz = this.value;
         document.getElementById('label-size-val').textContent = sz + 'px';
         document.querySelectorAll('.province-label').forEach(function(l){ l.style.fontSize = sz + 'px'; });
-        document.querySelectorAll('.province-label.small').forEach(function(l){ l.style.fontSize = Math.max(6, sz - 2) + 'px'; });
+        document.querySelectorAll('.province-label.small').forEach(function(l){ l.style.fontSize = Math.max(4, sz - 2) + 'px'; });
     });
 }
 

@@ -43,12 +43,10 @@ function inlineStyles(origSvg, clone) {
         var el = cloneLabels[i];
         var orig = origLabels[i];
         el.style.fontFamily = cs.fontFamily || 'sans-serif';
-        // 从原始DOM读取实际字号（由slider控制），而非硬编码
         el.style.fontSize = orig.style.fontSize || cs.fontSize || '6px';
         el.style.fontWeight = orig.style.fontWeight || cs.fontWeight || '500';
         el.style.textAnchor = 'middle';
         el.style.dominantBaseline = 'central';
-        // 读取实际文字颜色（深色板块反白由 getContrastColor 设置）
         el.style.fill = orig.style.fill || cs.fill || '#333';
     }
 
@@ -77,9 +75,11 @@ function exportSVG() {
     downloadBlob(blob, 'china-map.svg');
 }
 
-function exportPNG(scale, transparent) {
+function exportPNG() {
     var svg = document.getElementById('china-map');
     var vb = svg.getAttribute('viewBox').split(' ').map(Number);
+    // 固定3倍渲染保证清晰度
+    var scale = 3;
     var w = vb[2] * scale;
     var h = vb[3] * scale;
 
@@ -88,42 +88,23 @@ function exportPNG(scale, transparent) {
     canvas.height = h;
     var ctx = canvas.getContext('2d');
 
+    // 不填充白色背景——透明导出
+
     var clone = svg.cloneNode(true);
     clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     clone.setAttribute('width', w);
     clone.setAttribute('height', h);
+    // viewBox 保持不变，SVG 渲染器自动处理缩放
+    // 不再手动缩放 stroke-width / font-size，避免双重缩放
 
     inlineStyles(svg, clone);
-
-    // PNG导出需要缩放stroke和字号
-    clone.querySelectorAll('.province').forEach(function(el) {
-        el.style.strokeWidth = (parseFloat(el.style.strokeWidth) || 0.5) * scale;
-    });
-    clone.querySelectorAll('.outer-border').forEach(function(el) {
-        el.style.strokeWidth = (parseFloat(el.style.strokeWidth) || 0.5) * scale;
-    });
-    clone.querySelectorAll('.province-label').forEach(function(el) {
-        el.style.fontSize = (parseFloat(el.style.fontSize) || 6) * scale + 'px';
-    });
-    clone.querySelectorAll('.province-label.small').forEach(function(el) {
-        el.style.fontSize = Math.max(4, (parseFloat(el.style.fontSize) || 4)) * scale + 'px';
-    });
-    clone.querySelectorAll('.jdx-line').forEach(function(el) {
-        el.style.strokeWidth = 1 * scale;
-        el.style.strokeDasharray = (4 * scale) + ' ' + (3 * scale);
-    });
-
-    if (!transparent) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, w, h);
-    }
 
     var svgData = new XMLSerializer().serializeToString(clone);
     var img = new Image();
     img.onload = function() {
         ctx.drawImage(img, 0, 0, w, h);
         canvas.toBlob(function(blob) {
-            downloadBlob(blob, 'china-map-' + scale + 'x' + (transparent ? '-transparent' : '') + '.png');
+            downloadBlob(blob, 'china-map.png');
         }, 'image/png');
     };
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
