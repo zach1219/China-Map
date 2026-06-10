@@ -205,6 +205,11 @@ td { padding: 5px 8px; border-bottom: 1px solid #eee; }
 }
 .export-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .export-group label { font-size: 12px; color: var(--text-secondary); width: 100%; margin-bottom: 2px; }
+#site-footer { text-align:center; padding:14px 20px; font-size:12px; color:var(--text-secondary); background:var(--bg-card); border-top:1px solid var(--border); margin-top:0; }
+#site-footer strong { color:var(--primary); font-weight:600; }
+#site-footer .sep { margin:0 10px; color:var(--border); }
+#site-footer a { color:var(--primary); text-decoration:none; }
+#site-footer a:hover { text-decoration:underline; }
 @media (max-width: 1100px) {
     .container { flex-direction: column; }
     .map-panel { flex: none; width: 100%; }
@@ -274,6 +279,13 @@ td { padding: 5px 8px; border-bottom: 1px solid #eee; }
     </div>
 </div>
 <div id="tooltip"></div>
+<footer id="site-footer">
+    <span>累计使用 <strong id="ft-uses">0</strong> 次</span>
+    <span class="sep">|</span>
+    <span>最常出现：<strong id="ft-top">-</strong></span>
+    <span class="sep">|</span>
+    <a href="https://github.com/zach1219/China-Map" target="_blank">GitHub 项目地址</a>
+</footer>
 
 <script>
 "use strict";
@@ -556,6 +568,35 @@ function processText() {
 
     applyColors();
     updateStats();
+    trackUsage();
+}
+
+// ── Usage tracking (localStorage) ──
+function trackUsage() {
+    try {
+        var data = JSON.parse(localStorage.getItem('cnmap_stats') || '{"uses":0,"provTotal":{}}');
+        data.uses++;
+        Object.keys(countByProvince).forEach(function(id) {
+            var name = provinceMap[id] ? getShortName(provinceMap[id].name) : id;
+            data.provTotal[name] = (data.provTotal[name] || 0) + countByProvince[id];
+        });
+        localStorage.setItem('cnmap_stats', JSON.stringify(data));
+        renderFooter(data);
+    } catch(e) {}
+}
+function loadUsage() {
+    try {
+        var data = JSON.parse(localStorage.getItem('cnmap_stats') || '{"uses":0,"provTotal":{}}');
+        renderFooter(data);
+    } catch(e) {}
+}
+function renderFooter(data) {
+    document.getElementById('ft-uses').textContent = data.uses;
+    var topName = '-', topVal = 0;
+    Object.keys(data.provTotal).forEach(function(n) {
+        if (data.provTotal[n] > topVal) { topVal = data.provTotal[n]; topName = n; }
+    });
+    document.getElementById('ft-top').textContent = topVal > 0 ? (topName + '（' + topVal + ' 次）') : '-';
 }
 
 // ── Statistics ──
@@ -717,6 +758,7 @@ function downloadBlob(blob, filename) {
 // ── Init ──
 buildMap();
 updateGradientBar();
+loadUsage();
 </script>
 </body>
 </html>
