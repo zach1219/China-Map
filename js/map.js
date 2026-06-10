@@ -2,7 +2,6 @@
 
 var countByProvince = {};
 var maxCount = 0;
-var CITY_MAP = {};
 var provinceMap = {};
 PROVINCES.forEach(function(p){ provinceMap[p.id] = p; });
 
@@ -70,6 +69,7 @@ function buildMap() {
             txt.setAttribute("y", ly);
             txt.setAttribute("class", "province-label" + (SMALL_PROVINCES[p.name] ? " small" : ""));
             txt.setAttribute("data-id", p.id);
+            txt.setAttribute("data-base-name", getShortName(p.name));
             txt.textContent = getShortName(p.name);
             txt.setAttribute('visibility', 'hidden'); // hidden by default, shown when has data
             labelGroup.appendChild(txt);
@@ -100,6 +100,7 @@ function buildMap() {
     document.getElementById('border-color').addEventListener('input', function(){ applyBorderColor(); });
     document.getElementById('stroke-width-slider').addEventListener('input', function(){ applyBorderColor(); document.getElementById('stroke-width-val').textContent = this.value; });
     document.getElementById('hide-labels').addEventListener('change', function(){ applyColors(); });
+    document.getElementById('show-count').addEventListener('change', function(){ applyColors(); });
     document.getElementById('label-size').addEventListener('input', function(){
         var sz = this.value;
         document.getElementById('label-size-val').textContent = sz + 'px';
@@ -125,6 +126,7 @@ function applyColors() {
     });
     // Update label colors + hide option
     var hideUnchecked = document.getElementById('hide-labels').checked;
+    var showCount = document.getElementById('show-count').checked;
     document.querySelectorAll('.province-label').forEach(function(lbl) {
         var id = lbl.getAttribute('data-id');
         var cnt = countByProvince[id] || 0;
@@ -139,6 +141,9 @@ function applyColors() {
             } else {
                 lbl.style.fill = '#333333';
             }
+            // 更新标签文字：省份名称 + 可选频次
+            var baseName = lbl.getAttribute('data-base-name') || lbl.textContent;
+            lbl.textContent = (showCount && cnt > 0) ? (baseName + ' ' + cnt) : baseName;
         }
     });
 }
@@ -163,21 +168,15 @@ function processText() {
     countByProvince = {};
     maxCount = 0;
 
-    // Sort keys by length descending to match longer names first
     var provinceNames = [];
-    var cityNames = [];
     PROVINCES.forEach(function(p) { if (p.id !== 'JDX') { provinceNames.push(p.name); var sn = getShortName(p.name); if (sn !== p.name) provinceNames.push(sn); }});
-    Object.keys(CITY_MAP).forEach(function(c) { cityNames.push(c); });
 
-    var allNames = provinceNames.concat(cityNames);
-    allNames.sort(function(a,b){ return b.length - a.length; });
+    // Sort by length descending to match longer names first
+    provinceNames.sort(function(a,b){ return b.length - a.length; });
 
-    // Create a text copy for removal tracking
-    var remaining = text;
-    // Use regex-based matching to avoid double-counting
     var matchedEntries = [];
 
-    allNames.forEach(function(name) {
+    provinceNames.forEach(function(name) {
         var escaped = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         var re = new RegExp(escaped, 'g');
         var match;
@@ -214,10 +213,6 @@ function processText() {
                 provId = PROVINCES[i].id;
                 break;
             }
-        }
-        // Check if it's a city name
-        if (!provId && CITY_MAP[name]) {
-            provId = CITY_MAP[name];
         }
         if (provId) {
             countByProvince[provId] = (countByProvince[provId] || 0) + 1;

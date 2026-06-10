@@ -10,7 +10,7 @@
 
 <div class="header">
     <h1>🇨🇳 中国地图可视化工具</h1>
-    <p>输入文本自动匹配省份和城市 · 零依赖离线可用</p>
+    <p>输入文本自动匹配省份全称和简称 · 零依赖离线可用</p>
 </div>
 <div class="container">
     <div class="map-panel">
@@ -23,7 +23,7 @@
     <div class="right-panel">
         <div class="card">
             <h3>📝 文本输入</h3>
-            <textarea id="text-input" placeholder="粘贴文本，自动匹配省份和城市名称……"></textarea>
+            <textarea id="text-input" placeholder="粘贴文本，自动匹配省份全称和简称……"></textarea>
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="processText()">开始分析</button>
                 <button class="btn btn-success" onclick="clearAll()">清除</button>
@@ -43,19 +43,22 @@
                 <label>边界颜色</label>
                 <input type="color" id="border-color" value="#999999">
             </div>
-            <div class="color-row" style="margin-top:8px">
-                <label>边界粗细</label>
-                <input type="range" id="stroke-width-slider" min="0.2" max="3" step="0.1" value="0.6" style="flex:1;accent-color:var(--primary)">
-                <span id="stroke-width-val" style="font-size:12px;color:var(--text-secondary);min-width:28px;text-align:right">0.6</span>
-            </div>
             <div class="gradient-bar" id="gradient-bar"></div>
             <div class="color-row" style="margin-top:8px">
+                <label>边界粗细</label>
+                <input type="range" id="stroke-width-slider" min="0.2" max="3" step="0.1" value="0.5" style="flex:1;accent-color:var(--primary)">
+                <span id="stroke-width-val" style="font-size:12px;color:var(--text-secondary);min-width:28px;text-align:right">0.5</span>
+            </div>
+            <div class="color-row" style="margin-top:8px">
                 <label>名称大小</label>
-                <input type="range" id="label-size" min="6" max="16" value="10" style="flex:1;accent-color:var(--primary)">
-                <span id="label-size-val" style="font-size:12px;color:var(--text-secondary);min-width:28px;text-align:right">10px</span>
+                <input type="range" id="label-size" min="4" max="16" value="6" style="flex:1;accent-color:var(--primary)">
+                <span id="label-size-val" style="font-size:12px;color:var(--text-secondary);min-width:28px;text-align:right">6px</span>
             </div>
             <div class="color-row" style="margin-top:4px">
                 <label style="cursor:pointer"><input type="checkbox" id="hide-labels" checked style="vertical-align:middle;margin-right:4px">仅显示有数据省份名称</label>
+            </div>
+            <div class="color-row" style="margin-top:4px">
+                <label style="cursor:pointer"><input type="checkbox" id="show-count" style="vertical-align:middle;margin-right:4px">省份名称后显示频次</label>
             </div>
         </div>
         <div class="card">
@@ -85,6 +88,8 @@
     <span>最常出现：<strong id="ft-top">-</strong></span>
     <span class="sep">|</span>
     <a href="https://github.com/zach1219/China-Map" target="_blank">GitHub 项目地址</a>
+    <span class="sep">|</span>
+    <span>v1.0.0</span>
 </footer>
 
 

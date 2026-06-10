@@ -2,3 +2,11 @@
 .DS_Store
 Thumbs.db
 node_modules/
+__pycache__/
+_test.js
+china.geojson
+provinces_data.json
+build_index.py
+generate_provinces.py
+push_to_github.py
+CITY_DRILLDOWN_PLAN.md

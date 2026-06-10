@@ -45,7 +45,7 @@ body {
 .map-panel svg { width: 100%; height: auto; display: block; }
 .province {
     stroke: #555555;
-    stroke-width: 1;
+    stroke-width: 0.5;
     stroke-linejoin: round;
     paint-order: stroke fill;
     cursor: pointer;
@@ -63,19 +63,20 @@ body {
 }
 .outer-border {
     stroke: #555555;
-    stroke-width: 2;
+    stroke-width: 0.5;
     fill: none;
     pointer-events: none;
 }
 .province-label {
-    font-size: 9px;
+    font-size: 6px;
+    /* default overridden by slider */
     fill: #333;
     text-anchor: middle;
     dominant-baseline: central;
     pointer-events: none;
     font-weight: 500;
 }
-.province-label.small { font-size: 8px; }
+.province-label.small { font-size: 5px; }
 #tooltip {
     position: fixed;
     background: rgba(0,0,0,0.78);
